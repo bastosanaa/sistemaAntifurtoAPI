@@ -19,6 +19,20 @@ func CreateUser(c *gin.Context) {
         return
     }
 
+     // 2. Verifica se já existe usuário com este telefone
+    var exists int
+    err := DB.QueryRow("SELECT 1 FROM users WHERE phone = ?", input.Phone).Scan(&exists)
+    if err != nil && err != sql.ErrNoRows {
+        // Algo deu errado na consulta (exceto "nenhuma linha"), retornar 500
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    if exists == 1 {
+        // Já existe usuário com esse telefone, retorno 409 Conflict
+        c.JSON(http.StatusConflict, gin.H{"error": "Telefone já cadastrado"})
+        return
+    }
+
     // 2. Insere os campos name e phone no banco.
     result, err := DB.Exec("INSERT INTO users (name, phone) VALUES (?, ?)", input.Name, input.Phone)
     if err != nil {
@@ -26,11 +40,11 @@ func CreateUser(c *gin.Context) {
         return
     }
 
-    // 3. Obtém o ID gerado pelo banco para o novo registro.
+    // 4. Obtém o ID gerado pelo banco para o novo registro.
     id, _ := result.LastInsertId()
     input.ID = id
 
-    // 4. Retorna o objeto completo (com ID) para o cliente.
+    // 5. Retorna o objeto completo (com ID) para o cliente.
     c.JSON(http.StatusCreated, input)
 }
 
