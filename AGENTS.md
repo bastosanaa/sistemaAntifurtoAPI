@@ -17,11 +17,15 @@
      - CRUD de usuários  
      - Unicidade de `phone`  
      - `/health`, `/users`  
-  2. **alarm-service** (porta 8002)  
-     - CRUD de alarmes (`location`)  
-     - Relacionamento `alarm_users` (usuários autorizados)  
-     - Relacionamento `alarm_points` (pontos monitorados)  
-     - Comunicação HTTP com `user-service` para buscar nomes dos usuários  
+  2. **alarm-service** (porta 8002)
+     - CRUD de alarmes (`location`)
+     - Relacionamento `alarm_users` (usuários autorizados)
+     - Relacionamento `alarm_points` (pontos monitorados)
+     - Comunicação HTTP com `user-service` para buscar nomes dos usuários
+  3. **trigger-service** (porta 8003)
+     - Registro de disparos de alarme
+     - `/triggers`, `/alarms/{id}/triggers`
+     - Chama `logging-service` e `notification-service`
 - **Gateway (opcional):**  
   - Proxy REST que encaminha `/users` e `/alarms` entre frontends e microserviços.
 
@@ -40,13 +44,20 @@ sistemaAntifurtoAPI/
 │ ├── models/
 │ │ └── user.go
 │ └── main.go
-└── alarm-service/
-├── handlers/
-│ ├── database.go
-│ └── alarmHandler.go
-├── models/
-│ └── alarm.go
-└── main.go
+├── alarm-service/
+│ ├── handlers/
+│ │ ├── database.go
+│ │ └── alarmHandler.go
+│ ├── models/
+│ │ └── alarm.go
+│ └── main.go
+└── trigger-service/
+    ├── handlers/
+    │ ├── database.go
+    │ └── trigger_handler.go
+    ├── models/
+    │ └── trigger.go
+    └── main.go
 
 
 ---
