@@ -12,6 +12,7 @@
   - **Linguagem:** Go (>= 1.20)  
   - **Framework HTTP:** Gin  
   - **Banco de dados:** SQLite (cada microserviço com seu próprio arquivo .db)  
+
 - **Microserviços:**  
   1. **user-service** (porta 8001)  
      - CRUD de usuários  
@@ -22,10 +23,16 @@
      - Relacionamento `alarm_users` (usuários autorizados)
      - Relacionamento `alarm_points` (pontos monitorados)
      - Comunicação HTTP com `user-service` para buscar nomes dos usuários
+
   3. **trigger-service** (porta 8003)
      - Registro de disparos de alarme
      - `/triggers`, `/alarms/{id}/triggers`
      - Chama `logging-service` e `notification-service`
+
+  4. **control-service** (porta 8003)
+     - Armar e desarmar alarmes
+     - Consulta de status `/controls/{alarm_id}/status`
+
 - **Gateway (opcional):**  
   - Proxy REST que encaminha `/users` e `/alarms` entre frontends e microserviços.
 
@@ -36,8 +43,9 @@
 sistemaAntifurtoAPI/
 ├── go.mod
 ├── gateway/
-│ └── main.go
+│   └── main.go
 ├── user-service/
+
 │ ├── handlers/
 │ │ ├── database.go
 │ │ └── userHandler.go
@@ -57,6 +65,27 @@ sistemaAntifurtoAPI/
     │ └── trigger_handler.go
     ├── models/
     │ └── trigger.go
+
+│   ├── handlers/
+│   │   ├── database.go
+│   │   └── userHandler.go
+│   ├── models/
+│   │   └── user.go
+│   └── main.go
+├── alarm-service/
+│   ├── handlers/
+│   │   ├── database.go
+│   │   └── alarmHandler.go
+│   ├── models/
+│   │   └── alarm.go
+│   └── main.go
+└── control-service/
+    ├── handlers/
+    │   ├── controlHandler.go
+    │   ├── database.go
+    │   └── middlewares.go
+    ├── models/
+    │   └── control.go
     └── main.go
 
 
