@@ -49,3 +49,30 @@
 - O alarme deve existir para criar uma relação alarmUser
 - Usuário não pode ter mais de uma autorização para o mesmo alarme
 - Um ponto supervisionado não pode ser cadastrado mais de uma vez para o mesmo alarme
+
+---
+
+# Documentação — **control-service**
+
+> Micro-serviço em **Go + Gin** responsável por armar e desarmar alarmes.
+> Porta padrão: **http://localhost:8003**
+
+---
+
+## Sumário
+
+| Método | Rota                           | Descrição                             |
+| ------ | ------------------------------ | ------------------------------------- |
+| POST   | `/controls/{alarm_id}/arm`    | Arma o alarme indicado                |
+| POST   | `/controls/{alarm_id}/disarm` | Desarma o alarme indicado             |
+| GET    | `/controls/{alarm_id}/status` | Consulta o estado atual do alarme     |
+| GET    | `/health`                     | Verifica se o serviço está OK         |
+
+## Exemplo de corpo para arm/disarm
+
+```json
+{
+  "user_id": 1,
+  "mode": "app"
+}
+```
