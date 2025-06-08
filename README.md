@@ -49,3 +49,49 @@
 - O alarme deve existir para criar uma relação alarmUser
 - Usuário não pode ter mais de uma autorização para o mesmo alarme
 - Um ponto supervisionado não pode ser cadastrado mais de uma vez para o mesmo alarme
+
+---
+
+
+# Documentação — **trigger-service**
+
+> Micro-serviço em **Go + Gin** responsável por registrar disparos de alarmes.
+
+
+---
+
+## Sumário
+| Método | Rota                               | Descrição                         |
+| ------ | ---------------------------------- | --------------------------------- |
+| GET    | `/health`                          | Verifica se o serviço está OK     |
+| POST   | `/triggers`                        | Registra um disparo de alarme     |
+| GET    | `/alarms/{alarm_id}/triggers`      | Lista disparos de um alarme       |
+
+## Regras de negócio adicionadas
+- `event` deve ser `open` ou `presence`.
+- `alarm_id` e `point` devem existir no alarm-service.
+- Todos os disparos são registrados sem verificação de duplicidade.
+
+---
+
+# Documentação — **control-service**
+
+> Micro-serviço em **Go + Gin** responsável por armar e desarmar alarmes.
+> Porta padrão: **http://localhost:8003**
+
+
+| Método | Rota                           | Descrição                             |
+| ------ | ------------------------------ | ------------------------------------- |
+| POST   | `/controls/{alarm_id}/arm`    | Arma o alarme indicado                |
+| POST   | `/controls/{alarm_id}/disarm` | Desarma o alarme indicado             |
+| GET    | `/controls/{alarm_id}/status` | Consulta o estado atual do alarme     |
+| GET    | `/health`                     | Verifica se o serviço está OK         |
+
+## Exemplo de corpo para arm/disarm
+
+```json
+{
+  "user_id": 1,
+  "mode": "app"
+}
+```
