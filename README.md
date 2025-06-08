@@ -52,14 +52,33 @@
 
 ---
 
+
+# Documentação — **trigger-service**
+
+> Micro-serviço em **Go + Gin** responsável por registrar disparos de alarmes.
+
+
+---
+
+## Sumário
+| Método | Rota                               | Descrição                         |
+| ------ | ---------------------------------- | --------------------------------- |
+| GET    | `/health`                          | Verifica se o serviço está OK     |
+| POST   | `/triggers`                        | Registra um disparo de alarme     |
+| GET    | `/alarms/{alarm_id}/triggers`      | Lista disparos de um alarme       |
+
+## Regras de negócio adicionadas
+- `event` deve ser `open` ou `presence`.
+- `alarm_id` e `point` devem existir no alarm-service.
+- Todos os disparos são registrados sem verificação de duplicidade.
+
+---
+
 # Documentação — **control-service**
 
 > Micro-serviço em **Go + Gin** responsável por armar e desarmar alarmes.
 > Porta padrão: **http://localhost:8003**
 
----
-
-## Sumário
 
 | Método | Rota                           | Descrição                             |
 | ------ | ------------------------------ | ------------------------------------- |
