@@ -17,5 +17,5 @@ func main() {
 	r.GET("/controls/:id/status", handlers.GetStatus)
 	r.GET("/health", handlers.Health)
 
-	r.Run(":8003")
+	r.Run(":8005")
 }

@@ -14,7 +14,7 @@ import (
 
 const (
 	userServiceURL    = "http://localhost:8001"
-	loggingServiceURL = "http://localhost:8004/logs"
+	loggingServiceURL = "http://localhost:8006/logs"
 )
 
 // Health responde ao GET /health.
