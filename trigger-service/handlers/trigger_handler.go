@@ -25,17 +25,19 @@ func CreateTrigger(c *gin.Context) {
 		Point   string `json:"point"`
 		Event   string `json:"event"`
 	}
+	// Lê e valida JSON recebido
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Validações de entrada
 	if input.Event != "open" && input.Event != "presence" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "event inválido"})
 		return
 	}
 
-	// Valida existência do alarme
+	// Consulta alarm-service para validar existência do alarme
 	resp, err := http.Get(fmt.Sprintf("%s/alarms/%d", alarmServiceURL, input.AlarmID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -51,7 +53,7 @@ func CreateTrigger(c *gin.Context) {
 		return
 	}
 
-	// Valida ponto monitorado
+	// Consulta alarm-service para validar existência do ponto
 	resp, err = http.Get(fmt.Sprintf("%s/alarms/%d/points", alarmServiceURL, input.AlarmID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -89,6 +91,7 @@ func CreateTrigger(c *gin.Context) {
 	}
 
 	timestamp := time.Now().UTC()
+	// Insere registro de disparo no banco local triggers.db
 	res, err := DB.Exec("INSERT INTO triggers (alarm_id, point, event, timestamp) VALUES (?, ?, ?, ?)",
 		input.AlarmID, input.Point, input.Event, timestamp)
 	if err != nil {
@@ -107,16 +110,19 @@ func CreateTrigger(c *gin.Context) {
 	}
 	body, _ := json.Marshal(payload)
 
+	// Envia payload para logging-service
 	if err := postJSON(loggingServiceURL, body); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Notifica usuários via notification-service
 	if err := notifyUsers(input.AlarmID, timestamp); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Retorna HTTP 201 Created com o objeto criado
 	c.JSON(http.StatusCreated, trig)
 }
 
@@ -173,7 +179,7 @@ func ListTriggers(c *gin.Context) {
 		return
 	}
 
-	// valida existência do alarme
+	// Consulta alarm-service para validar existência do alarme
 	resp, err := http.Get(fmt.Sprintf("%s/alarms/%d", alarmServiceURL, alarmID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -189,6 +195,7 @@ func ListTriggers(c *gin.Context) {
 		return
 	}
 
+	// Monta consulta no banco de dados
 	query := "SELECT point, event, timestamp FROM triggers WHERE alarm_id = ?"
 	args := []interface{}{alarmID}
 
@@ -211,6 +218,7 @@ func ListTriggers(c *gin.Context) {
 		args = append(args, to)
 	}
 
+	// Busca no SQLite se existem disparos para o alarme
 	rows, err := DB.Query(query, args...)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -240,6 +248,7 @@ func ListTriggers(c *gin.Context) {
 		}{t.Point, t.Event, t.Timestamp})
 	}
 
+	// Retorna HTTP 200 OK com a lista de disparos
 	c.JSON(http.StatusOK, triggers)
 }
 

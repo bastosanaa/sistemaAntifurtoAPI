@@ -30,12 +30,14 @@ func Notify(c *gin.Context) {
 		Event     string `json:"event"`
 		Timestamp string `json:"timestamp"`
 	}
-	
+
+	// Lê e valida JSON recebido
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Verifica que campo "event" é "arm", "disarm" ou "trigger"
 	if input.Event != "arm" && input.Event != "disarm" && input.Event != "trigger" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "event inválido"})
 		return
@@ -46,6 +48,7 @@ func Notify(c *gin.Context) {
 		return
 	}
 
+	// Consulta user-service para obter telefone do destinatário
 	phone, statusCode, err := fetchPhone(input.UserID)
 	if err != nil {
 		if statusCode == http.StatusBadGateway {
@@ -60,6 +63,7 @@ func Notify(c *gin.Context) {
 		return
 	}
 
+	// Monta mensagem humanizada para registro
 	msg := formatMessage(input.AlarmID, input.Event, t)
 	log.Printf("[NOTIFY] Para: %s | Alarme: %d | Evento: %s | Mensagem: %s", phone, input.AlarmID, input.Event, msg)
 
@@ -70,12 +74,15 @@ func Notify(c *gin.Context) {
 		Message:   msg,
 		Timestamp: t,
 	}
+	// Envia payload para logging-service
 	sendLog(not)
 
+	// Retorna HTTP 200 OK informando que a notificação foi simulada
 	c.JSON(http.StatusOK, gin.H{"sent": true})
 }
 
 func fetchPhone(id int64) (string, int, error) {
+	// Consulta user-service para obter telefone do usuário
 	resp, err := http.Get(fmt.Sprintf("%s/users/%d", userServiceURL, id))
 	if err != nil {
 		return "", http.StatusBadGateway, err
@@ -97,6 +104,7 @@ func fetchPhone(id int64) (string, int, error) {
 }
 
 func sendLog(n models.Notification) {
+	// Envia payload para logging-service
 	body, err := json.Marshal(n)
 	if err != nil {
 		return
