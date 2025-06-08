@@ -67,6 +67,8 @@
 | POST   | `/triggers`                        | Registra um disparo de alarme     |
 | GET    | `/alarms/{alarm_id}/triggers`      | Lista disparos de um alarme       |
 
+Disparos geram notificações via **notification-service** para todos os usuários autorizados.
+
 ## Regras de negócio adicionadas
 - `event` deve ser `open` ou `presence`.
 - `alarm_id` e `point` devem existir no alarm-service.
@@ -86,6 +88,7 @@
 | POST   | `/controls/{alarm_id}/disarm` | Desarma o alarme indicado             |
 | GET    | `/controls/{alarm_id}/status` | Consulta o estado atual do alarme     |
 | GET    | `/health`                     | Verifica se o serviço está OK         |
+Ao armar ou desarmar com sucesso, o serviço envia uma notificação via **notification-service** para o usuário informado.
 
 ## Exemplo de corpo para arm/disarm
 

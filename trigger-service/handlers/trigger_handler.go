@@ -15,7 +15,7 @@ import (
 const (
 	alarmServiceURL        = "http://localhost:8002"
 	loggingServiceURL      = "http://localhost:8004/logs"
-	notificationServiceURL = "http://localhost:8005/notify"
+	notificationServiceURL = "http://localhost:8004/notify"
 )
 
 // CreateTrigger trata POST /triggers
@@ -111,7 +111,8 @@ func CreateTrigger(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	if err := postJSON(notificationServiceURL, body); err != nil {
+
+	if err := notifyUsers(input.AlarmID, timestamp); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -127,6 +128,38 @@ func postJSON(url string, data []byte) error {
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("serviço %s retornou status %d", url, resp.StatusCode)
+	}
+	return nil
+}
+
+func notifyUsers(alarmID int64, ts time.Time) error {
+	resp, err := http.Get(fmt.Sprintf("%s/alarms/%d/users", alarmServiceURL, alarmID))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			return fmt.Errorf("alarme n\u00e3o encontrado")
+		}
+		return fmt.Errorf("falha ao obter usuarios")
+	}
+	var list struct {
+		Users []int64 `json:"users"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&list); err != nil {
+		return err
+	}
+	for _, uid := range list.Users {
+		payload, _ := json.Marshal(map[string]interface{}{
+			"user_id":   uid,
+			"alarm_id":  alarmID,
+			"event":     "trigger",
+			"timestamp": ts,
+		})
+		if err := postJSON(notificationServiceURL, payload); err != nil {
+			return err
+		}
 	}
 	return nil
 }
