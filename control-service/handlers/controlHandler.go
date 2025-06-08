@@ -35,19 +35,20 @@ func handleControl(c *gin.Context, action string) {
 		return
 	}
 
-	// verifica se alarme existe
+	// Consulta alarm-service para validar existência do alarme
 	if !alarmExists(alarmID) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Alarme não encontrado"})
 		return
 	}
 
 	var req ControlRequest
+	// Lê e valida JSON recebido
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// verifica permissão se user_id informado
+	// Verifica permissão de usuário caso informado
 	if req.UserID != nil {
 		if !userAllowed(alarmID, *req.UserID) {
 			recordAttempt(alarmID, req.UserID, req.Source, req.Mode, action, "failure")
@@ -70,9 +71,12 @@ func handleControl(c *gin.Context, action string) {
 	}
 
 	ctrl := recordAttempt(alarmID, req.UserID, req.Source, req.Mode, action, "success")
+	// Envia payload para logging-service
 	sendLog(ctrl)
+	// Notifica usuários via notification-service
 	sendNotification(ctrl)
 
+	// Retorna HTTP 200 OK com o controle registrado
 	c.JSON(http.StatusOK, ctrl)
 }
 
@@ -84,7 +88,9 @@ func GetStatus(c *gin.Context) {
 		return
 	}
 
+	// Consulta banco para último estado registrado
 	state, ts := getCurrentState(alarmID)
+	// Retorna HTTP 200 OK com estado atual do alarme
 	c.JSON(http.StatusOK, gin.H{"alarm_id": alarmID, "state": state, "timestamp": ts})
 }
 
@@ -128,6 +134,7 @@ func userAllowed(alarmID, userID int64) bool {
 func getCurrentState(alarmID int64) (string, string) {
 	var action string
 	var ts string
+	// Consulta último registro de sucesso para determinar estado
 	query := `SELECT action, timestamp FROM controls WHERE alarm_id = ? AND result = 'success' ORDER BY timestamp DESC LIMIT 1`
 	err := DB.QueryRow(query, alarmID).Scan(&action, &ts)
 	if err == sql.ErrNoRows {
@@ -144,9 +151,10 @@ func getCurrentState(alarmID int64) (string, string) {
 func recordAttempt(alarmID int64, userID *int64, source, mode, action, result string) models.Control {
 	ts := time.Now().UTC().Format(time.RFC3339)
 
+	// Persiste tentativa no banco de dados local
 	_, err := DB.Exec(`INSERT INTO controls (alarm_id, user_id, source, mode, action, timestamp, result) VALUES (?, ?, ?, ?, ?, ?, ?)`, alarmID, userID, source, mode, action, ts, result)
 	if err != nil {
-		// apenas loga o erro
+		// Apenas registra falha no log de saída padrão
 		fmt.Println("Erro ao registrar controle:", err)
 	}
 
@@ -163,6 +171,7 @@ func recordAttempt(alarmID int64, userID *int64, source, mode, action, result st
 }
 
 func sendLog(ctrl models.Control) {
+	// Envia payload para logging-service
 	payload, _ := json.Marshal(gin.H{
 		"service":   "control",
 		"alarm_id":  ctrl.AlarmID,
@@ -178,6 +187,7 @@ func sendNotification(ctrl models.Control) {
 	if ctrl.Result != "success" || ctrl.UserID == nil {
 		return
 	}
+	// Notifica usuários via notification-service
 	payload, _ := json.Marshal(gin.H{
 		"user_id":   *ctrl.UserID,
 		"alarm_id":  ctrl.AlarmID,
