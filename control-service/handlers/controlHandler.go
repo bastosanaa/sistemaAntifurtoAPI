@@ -170,9 +170,8 @@ func sendLog(ctrl models.Control) {
 		"action":    ctrl.Action,
 		"mode":      ctrl.Mode,
 		"timestamp": ctrl.Timestamp,
-		"result":    ctrl.Result,
 	})
-	http.Post("http://localhost:8004/logs", "application/json", bytes.NewBuffer(payload))
+	http.Post("http://localhost:8006/logs", "application/json", bytes.NewBuffer(payload))
 }
 
 func sendNotification(ctrl models.Control) {

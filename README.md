@@ -56,6 +56,7 @@
 # Documentação — **trigger-service**
 
 > Micro-serviço em **Go + Gin** responsável por registrar disparos de alarmes.
+> Porta padrão: **http://localhost:8003**
 
 
 ---
@@ -79,7 +80,7 @@ Disparos geram notificações via **notification-service** para todos os usuári
 # Documentação — **control-service**
 
 > Micro-serviço em **Go + Gin** responsável por armar e desarmar alarmes.
-> Porta padrão: **http://localhost:8003**
+> Porta padrão: **http://localhost:8005**
 
 
 | Método | Rota                           | Descrição                             |
@@ -127,4 +128,30 @@ Mensagem gerada:
 
 ```
 O Alarme de número 2 foi ativado (06/06/2025 - 15:00)
+```
+
+---
+
+# Documentação — **logging-service**
+
+> Micro-serviço em **Go + Gin** responsável por registrar todos os eventos de arm, disarm e trigger.
+> Porta padrão: **http://localhost:8006**
+
+## Sumário
+| Método | Rota      | Descrição                         |
+| ------ | --------- | --------------------------------- |
+| GET    | `/health` | Verifica se o serviço está OK     |
+| POST   | `/logs`   | Registra um evento de alarme      |
+
+## Exemplo de corpo para `/logs`
+
+```json
+{
+  "service": "control",
+  "alarm_id": 1,
+  "user_id": 2,
+  "action": "arm",
+  "mode": "app",
+  "timestamp": "2025-06-08T14:30:00Z"
+}
 ```

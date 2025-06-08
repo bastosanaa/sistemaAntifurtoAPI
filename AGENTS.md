@@ -29,7 +29,7 @@
      - `/triggers`, `/alarms/{id}/triggers`
      - Chama `logging-service` e `notification-service`
 
-  4. **control-service** (porta 8003)
+  4. **control-service** (porta 8005)
      - Armar e desarmar alarmes
      - Consulta de status `/controls/{alarm_id}/status`
 
@@ -37,6 +37,10 @@
      - Envia notificacoes para usuarios
      - `/health`, `/notify`
      - Mensagem da notificação é construída automaticamente pelo serviço
+
+  6. **logging-service** (porta 8006)
+     - Centraliza todos os logs de arm/disarm/trigger
+     - `/health`, `/logs`
 
 
 - **Gateway (opcional):**  
@@ -51,27 +55,6 @@ sistemaAntifurtoAPI/
 ├── gateway/
 │   └── main.go
 ├── user-service/
-
-│ ├── handlers/
-│ │ ├── database.go
-│ │ └── userHandler.go
-│ ├── models/
-│ │ └── user.go
-│ └── main.go
-├── alarm-service/
-│ ├── handlers/
-│ │ ├── database.go
-│ │ └── alarmHandler.go
-│ ├── models/
-│ │ └── alarm.go
-│ └── main.go
-└── trigger-service/
-    ├── handlers/
-    │ ├── database.go
-    │ └── trigger_handler.go
-    ├── models/
-    │ └── trigger.go
-
 │   ├── handlers/
 │   │   ├── database.go
 │   │   └── userHandler.go
@@ -85,19 +68,34 @@ sistemaAntifurtoAPI/
 │   ├── models/
 │   │   └── alarm.go
 │   └── main.go
+├── trigger-service/
+│   ├── handlers/
+│   │   ├── database.go
+│   │   └── trigger_handler.go
+│   ├── models/
+│   │   └── trigger.go
+│   └── main.go
 ├── control-service/
+│   ├── handlers/
+│   │   ├── controlHandler.go
+│   │   ├── database.go
+│   │   └── middlewares.go
+│   ├── models/
+│   │   └── control.go
+│   └── main.go
+├── notification-service/
+│   ├── handlers/
+│   │   ├── database.go
+│   │   └── notify_handler.go
+│   ├── models/
+│   │   └── notification.go
+│   └── main.go
+└── logging-service/
     ├── handlers/
-    │   ├── controlHandler.go
     │   ├── database.go
-    │   └── middlewares.go
+    │   └── log_handler.go
     ├── models/
-    │   └── control.go
-└── notification-service/
-    ├── handlers/
-    │   ├── database.go
-    │   └── notify_handler.go
-    ├── models/
-    │   └── notification.go
+    │   └── log.go
     └── main.go
 
 

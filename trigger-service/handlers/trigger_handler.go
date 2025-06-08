@@ -14,7 +14,7 @@ import (
 
 const (
 	alarmServiceURL        = "http://localhost:8002"
-	loggingServiceURL      = "http://localhost:8004/logs"
+	loggingServiceURL      = "http://localhost:8006/logs"
 	notificationServiceURL = "http://localhost:8004/notify"
 )
 
@@ -102,7 +102,7 @@ func CreateTrigger(c *gin.Context) {
 		"service":   "trigger",
 		"alarm_id":  input.AlarmID,
 		"point":     input.Point,
-		"event":     input.Event,
+		"action":    "trigger",
 		"timestamp": timestamp,
 	}
 	body, _ := json.Marshal(payload)
