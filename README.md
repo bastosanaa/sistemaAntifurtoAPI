@@ -67,6 +67,8 @@
 | POST   | `/triggers`                        | Registra um disparo de alarme     |
 | GET    | `/alarms/{alarm_id}/triggers`      | Lista disparos de um alarme       |
 
+Disparos geram notificações via **notification-service** para todos os usuários autorizados.
+
 ## Regras de negócio adicionadas
 - `event` deve ser `open` ou `presence`.
 - `alarm_id` e `point` devem existir no alarm-service.
@@ -86,6 +88,7 @@
 | POST   | `/controls/{alarm_id}/disarm` | Desarma o alarme indicado             |
 | GET    | `/controls/{alarm_id}/status` | Consulta o estado atual do alarme     |
 | GET    | `/health`                     | Verifica se o serviço está OK         |
+Ao armar ou desarmar com sucesso, o serviço envia uma notificação via **notification-service** para o usuário informado.
 
 ## Exemplo de corpo para arm/disarm
 
@@ -94,4 +97,34 @@
   "user_id": 1,
   "mode": "app"
 }
+```
+
+---
+
+# Documentação — **notification-service**
+
+> Micro-serviço em **Go + Gin** responsável por enviar notificações aos usuários.
+> Porta padrão: **http://localhost:8004**
+
+## Sumário
+| Método | Rota      | Descrição                         |
+| ------ | --------- | --------------------------------- |
+| GET    | `/health` | Verifica se o serviço está OK     |
+| POST   | `/notify` | Envia uma notificação ao usuário   |
+
+## Exemplo de corpo para `/notify`
+
+```json
+{
+  "user_id": 1,
+  "alarm_id": 2,
+  "event": "arm",
+  "timestamp": "2025-06-06T15:00:00Z"
+}
+```
+
+Mensagem gerada:
+
+```
+O Alarme de número 2 foi ativado (06/06/2025 - 15:00)
 ```

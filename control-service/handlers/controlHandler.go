@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const notificationServiceURL = "http://localhost:8004/notify"
+
 // ControlRequest representa o body para armar/desarmar
 type ControlRequest struct {
 	UserID *int64 `json:"user_id,omitempty"`
@@ -174,14 +176,14 @@ func sendLog(ctrl models.Control) {
 }
 
 func sendNotification(ctrl models.Control) {
-	if ctrl.Result != "success" {
+	if ctrl.Result != "success" || ctrl.UserID == nil {
 		return
 	}
 	payload, _ := json.Marshal(gin.H{
+		"user_id":   *ctrl.UserID,
 		"alarm_id":  ctrl.AlarmID,
-		"action":    ctrl.Action,
-		"mode":      ctrl.Mode,
+		"event":     ctrl.Action,
 		"timestamp": ctrl.Timestamp,
 	})
-	http.Post("http://localhost:8005/notify", "application/json", bytes.NewBuffer(payload))
+	http.Post(notificationServiceURL, "application/json", bytes.NewBuffer(payload))
 }
