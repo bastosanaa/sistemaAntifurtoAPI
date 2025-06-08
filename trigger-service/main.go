@@ -13,7 +13,7 @@ func main() {
 
 	r.POST("/triggers", handlers.CreateTrigger)
 	r.GET("/alarms/:alarm_id/triggers", handlers.ListTriggers)
-	r.GET("/health", handlers.Health)
+	r.GET("/triggers/health", handlers.Health)
 
 	r.Run(":8003")
 }

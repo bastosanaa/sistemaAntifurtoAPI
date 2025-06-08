@@ -29,7 +29,7 @@ func main() {
     r.GET("/alarms/:id/points", handlers.ListPointsForAlarm)             // Listar pontos de um alarme
     r.DELETE("/alarms/:id/points/:point", handlers.RemoveAlarmPoint)  // Remover ponto de um alarme
 
-    r.GET("/health", handlers.Health)
+    r.GET("/alarms/health", handlers.Health)
 
 
 

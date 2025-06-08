@@ -15,7 +15,7 @@ func main() {
     r.GET("/users/:id", handlers.GetUser)
     r.PUT("/users/:id", handlers.UpdateUser)
     r.DELETE("/users/:id", handlers.DeleteUser)
-    r.GET("/health", handlers.Health)
+    r.GET("/users/health", handlers.Health)
 
     r.Run(":8001")
 }

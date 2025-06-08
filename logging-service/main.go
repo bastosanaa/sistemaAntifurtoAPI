@@ -11,7 +11,8 @@ func main() {
 
 	r := gin.Default()
 	r.POST("/logs", handlers.CreateLog)
-	r.GET("/health", handlers.Health)
+	r.GET("/logs", handlers.ListLogs)
+	r.GET("/logs/health", handlers.Health)
 
 	r.Run(":8006")
 }

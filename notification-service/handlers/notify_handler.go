@@ -30,6 +30,7 @@ func Notify(c *gin.Context) {
 		Event     string `json:"event"`
 		Timestamp string `json:"timestamp"`
 	}
+	
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

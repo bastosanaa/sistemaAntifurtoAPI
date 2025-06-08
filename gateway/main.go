@@ -2,8 +2,6 @@ package main
 
 import (
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/bastosanaa/sistemaAntifurtoAPI/gateway/handlers"
@@ -16,36 +14,32 @@ func main() {
 	r.Use(gin.Logger(), gin.Recovery())
 
 	r.Use(middleware.CORSMiddleware())
-	r.Use(middleware.AuthMiddleware())
+	// r.Use(middleware.AuthMiddleware())
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "gateway OK"})
 	})
 
-	userURL := getenv("USER_SERVICE_URL")
-	alarmURL := getenv("ALARM_SERVICE_URL")
-	controlURL := getenv("CONTROL_SERVICE_URL")
-	triggerURL := getenv("TRIGGER_SERVICE_URL")
-	notificationURL := getenv("NOTIFICATION_SERVICE_URL")
-	loggingURL := getenv("LOGGING_SERVICE_URL")
+	userURL := "http://localhost:8001"
+	alarmURL := "http://localhost:8002"
+	controlURL := "http://localhost:8005"
+	triggerURL := "http://localhost:8003"
+	notificationURL := "http://localhost:8004"
+	loggingURL := "http://localhost:8006"
 
 	// Set timeout
 	http.DefaultTransport.(*http.Transport).ResponseHeaderTimeout = 3 * time.Second
 
+	r.Any("/users", handlers.ReverseProxy(userURL))
 	r.Any("/users/*proxyPath", handlers.ReverseProxy(userURL))
+	r.Any("/alarms", handlers.ReverseProxy(alarmURL))
 	r.Any("/alarms/*proxyPath", handlers.ReverseProxy(alarmURL))
+	r.Any("/controls", handlers.ReverseProxy(controlURL))
 	r.Any("/controls/*proxyPath", handlers.ReverseProxy(controlURL))
+	r.Any("/triggers", handlers.ReverseProxy(triggerURL))
 	r.Any("/triggers/*proxyPath", handlers.ReverseProxy(triggerURL))
 	r.POST("/notify", handlers.ReverseProxy(notificationURL))
-	r.POST("/logs", handlers.ReverseProxy(loggingURL))
+	r.Any("/logs", handlers.ReverseProxy(loggingURL))
 
 	r.Run(":8000")
-}
-
-func getenv(key string) string {
-	v := strings.TrimSpace(os.Getenv(key))
-	if v == "" {
-		panic("missing env " + key)
-	}
-	return v
 }

@@ -15,7 +15,7 @@ func main() {
 	r.POST("/controls/:id/arm", handlers.ArmAlarm)
 	r.POST("/controls/:id/disarm", handlers.DisarmAlarm)
 	r.GET("/controls/:id/status", handlers.GetStatus)
-	r.GET("/health", handlers.Health)
+	r.GET("/controls/health", handlers.Health)
 
 	r.Run(":8005")
 }

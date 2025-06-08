@@ -27,8 +27,7 @@ func InitDatabase() {
         alarm_id INTEGER NOT NULL,
         point TEXT NOT NULL,
         event TEXT NOT NULL,
-        timestamp DATETIME NOT NULL,
-        FOREIGN KEY(alarm_id) REFERENCES alarms(id) ON DELETE CASCADE
+        timestamp DATETIME NOT NULL
     );`
 	if _, err := DB.Exec(createTable); err != nil {
 		log.Fatalf("Erro ao criar tabela triggers: %v", err)

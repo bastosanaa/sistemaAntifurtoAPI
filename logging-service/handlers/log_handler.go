@@ -62,6 +62,48 @@ func CreateLog(c *gin.Context) {
 	c.JSON(http.StatusCreated, entry)
 }
 
+// ListLogs trata GET /logs e retorna todos os eventos registrados.
+func ListLogs(c *gin.Context) {
+    rows, err := DB.Query(`
+        SELECT 
+            id, service, alarm_id, user_id, action, mode, point, timestamp
+        FROM logs
+        ORDER BY timestamp DESC
+    `)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    defer rows.Close()
+
+    var entries []models.LogEntry
+    for rows.Next() {
+        var e models.LogEntry
+        // user_id, mode e point podem ser nulos, use os ponteiros definidos em LogEntry
+        if err := rows.Scan(
+            &e.ID,
+            &e.Service,
+            &e.AlarmID,
+            &e.UserID,
+            &e.Action,
+            &e.Mode,
+            &e.Point,
+            &e.Timestamp,
+        ); err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            return
+        }
+        entries = append(entries, e)
+    }
+    if err := rows.Err(); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, entries)
+}
+
+
 // Health responde ao GET /health.
 func Health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "logging-service OK"})

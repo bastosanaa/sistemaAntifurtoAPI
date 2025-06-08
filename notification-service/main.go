@@ -10,7 +10,7 @@ func main() {
 
 	r := gin.Default()
 
-	r.GET("/health", handlers.Health)
+	r.GET("/nofify/health", handlers.Health)
 	r.POST("/notify", handlers.Notify)
 
 	r.Run(":8004")
