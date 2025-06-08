@@ -33,6 +33,12 @@
      - Armar e desarmar alarmes
      - Consulta de status `/controls/{alarm_id}/status`
 
+  5. **notification-service** (porta 8004)
+     - Envia notificacoes para usuarios
+     - `/health`, `/notify`
+     - Mensagem da notificação é construída automaticamente pelo serviço
+
+
 - **Gateway (opcional):**  
   - Proxy REST que encaminha `/users` e `/alarms` entre frontends e microserviços.
 
@@ -79,13 +85,19 @@ sistemaAntifurtoAPI/
 │   ├── models/
 │   │   └── alarm.go
 │   └── main.go
-└── control-service/
+├── control-service/
     ├── handlers/
     │   ├── controlHandler.go
     │   ├── database.go
     │   └── middlewares.go
     ├── models/
     │   └── control.go
+└── notification-service/
+    ├── handlers/
+    │   ├── database.go
+    │   └── notify_handler.go
+    ├── models/
+    │   └── notification.go
     └── main.go
 
 
