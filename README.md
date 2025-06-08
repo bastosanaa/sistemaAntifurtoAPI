@@ -155,3 +155,22 @@ O Alarme de número 2 foi ativado (06/06/2025 - 15:00)
   "timestamp": "2025-06-08T14:30:00Z"
 }
 ```
+
+---
+
+# Documentação — **gateway**
+
+> API Gateway em **Go + Gin** responsável por unificar o acesso aos microserviços.
+> Porta padrão: **http://localhost:8000**
+
+## Sumário
+
+| Método | Rota                      | Encaminha para               |
+| ------ | ------------------------- | ---------------------------- |
+| GET    | `/health`                | Status do gateway            |
+| ALL    | `/users/*`               | user-service                 |
+| ALL    | `/alarms/*`              | alarm-service                |
+| ALL    | `/controls/*`            | control-service              |
+| ALL    | `/triggers/*`            | trigger-service              |
+| POST   | `/notify`                | notification-service         |
+| POST   | `/logs`                  | logging-service              |
