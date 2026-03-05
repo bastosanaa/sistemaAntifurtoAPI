@@ -1,3 +1,24 @@
+# Sistema de Monitoramento Antifurto (Backend API)
+Este projeto consiste em um ecossistema de microsserviços desenvolvido em Go para o controle, monitoramento e gerenciamento de sistemas de segurança residencial e comercial. A arquitetura foi projetada para ser acessada tanto por aplicativos móveis quanto por painéis físicos de centrais de alarme, garantindo escalabilidade e isolamento de responsabilidades.
+
+<img width="1314" height="720" alt="image" src="https://github.com/user-attachments/assets/64f2c276-e7d6-4044-a11f-1166cf70a2dd" />
+
+
+## 🏛️ Arquitetura do Sistema
+O backend é estruturado em torno de um API Gateway central que gerencia as requisições e as distribui entre seis microsserviços especializados, cada um com sua própria base de dados SQLite independente:
+
+- **User Service (Porta 8001)**: Responsável pelo ciclo de vida dos usuários, mantendo registros de nomes e números de celular para notificações.
+
+- **Alarm Service (Porta 8002)**: Gerencia o inventário de alarmes, incluindo locais de instalação, permissões de acesso por usuário e o mapeamento de pontos monitorados (ex: sala, quarto, porta principal).
+
+- **Control Service (Porta 8005)**: Centraliza a inteligência de acionamento (armar/desarmar). Valida permissões e estados atuais antes de registrar mudanças solicitadas via aplicativo ou central física.
+
+- **Trigger Service (Porta 8003)**: Processa e registra eventos de disparo originados por sensores de abertura ou presença em pontos específicos.
+
+- **Notification Service (Porta 8004)**: Atua de forma stateless para simular o envio de alertas críticos aos usuários via terminal sempre que ocorre um acionamento, desativação ou disparo.
+
+- **Logging Service (Porta 8006)**: Consolida o histórico completo de auditoria do sistema, persistindo cada interação de controle e cada alerta gerado para consultas futuras.
+
 
 # Guia de Uso via Gateway
 
